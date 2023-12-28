@@ -5,14 +5,14 @@ import { IMember } from './members.modal';
 const MEMBERS_STORAGE_KEY = 'members';
 
 // Function to load the initial state from localForage
-const loadInitialState = async () => {
+const loadInitialState = () => {
   const serializedState = localStorage.getItem(MEMBERS_STORAGE_KEY);
   return serializedState ? JSON.parse(serializedState) : [];
 };
 
 // Set the initial state synchronously if possible
 // Otherwise, you can set it to an empty array or loading state
-const initialState: IMember[] = await loadInitialState();
+const initialState: IMember[] = loadInitialState();
 
 const membersSlice = createSlice({
   name: 'members',
