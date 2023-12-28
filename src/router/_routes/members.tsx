@@ -14,6 +14,10 @@ export const membersRoutes: RouteObject[] = [
         path: 'create',
         element: <CreateMemberPage />,
       },
+      {
+        path: ':memberId/edit',
+        element: <CreateMemberPage editMode />,
+      },
     ],
   },
 ];

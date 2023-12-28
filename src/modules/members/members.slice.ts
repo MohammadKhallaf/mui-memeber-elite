@@ -19,20 +19,31 @@ const membersSlice = createSlice({
   initialState,
   reducers: {
     addMember: (state, action) => {
-      const id = nanoid();
-      state.push({ id, ...action.payload });
+      const newMember = { id: nanoid(), ...action.payload };
+      state.push(newMember);
 
       localStorage.setItem(MEMBERS_STORAGE_KEY, JSON.stringify(state));
     },
 
     removeMember: (state, action) => {
       const id = action.payload;
-      const newList = state.filter((member) => member.id !== id);
-      localStorage.setItem(MEMBERS_STORAGE_KEY, JSON.stringify(newList));
-      return newList;
+      const index = state.findIndex((member) => member.id === id);
+      if (index !== -1) {
+        state.splice(index, 1);
+        localStorage.setItem(MEMBERS_STORAGE_KEY, JSON.stringify(state));
+      }
+    },
+
+    editMember: (state, action) => {
+      const id = action.payload.id;
+      const index = state.findIndex((member) => member.id === id);
+      if (index !== -1) {
+        state[index] = { ...state[index], ...action.payload };
+        localStorage.setItem(MEMBERS_STORAGE_KEY, JSON.stringify(state));
+      }
     },
   },
 });
 
 export default membersSlice;
-export const { addMember, removeMember } = membersSlice.actions;
+export const { addMember, removeMember, editMember } = membersSlice.actions;

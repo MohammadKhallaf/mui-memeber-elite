@@ -8,6 +8,7 @@ import {
   Card,
   CardActionArea,
   CardContent,
+  Checkbox,
   FormControl,
   FormControlLabel,
   FormHelperText,
@@ -33,15 +34,20 @@ import FilePondPluginImageResize from 'filepond-plugin-image-resize';
 import FilePondPluginImageTransform from 'filepond-plugin-image-transform';
 import FilePondPluginImageValidateSize from 'filepond-plugin-image-validate-size';
 import 'filepond/dist/filepond.min.css';
+import { DateTime } from 'luxon';
 import { useSnackbar } from 'notistack';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FilePond, registerPlugin } from 'react-filepond';
 import { Controller, useForm } from 'react-hook-form';
-import { useAppDispatch } from 'src/store';
-import { EMmemberShipType, IMember } from './members.modal';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useAppDispatch, useAppSelector } from 'src/store';
+import { EGender, EMembershipType, IMember } from './members.modal';
 import memberSchema from './members.schema';
-import { addMember } from './members.slice';
+import { addMember, editMember } from './members.slice';
 
+type Props = {
+  editMode?: boolean;
+};
 registerPlugin(
   FilePondPluginImageValidateSize,
   FilePondPluginFileRename,
@@ -54,22 +60,61 @@ registerPlugin(
   FilePondPluginImageResize,
   FilePondPluginImageEdit
 );
-function CreateMemberPage(): React.ReactElement {
+
+function CreateMemberPage({ editMode }: Props): React.ReactElement {
   const dispatch = useAppDispatch();
+  const members = useAppSelector((state) => state.members);
+  const params = useParams();
+  const navigate = useNavigate();
+
   const [loading, setLoading] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
-  const { control, handleSubmit, setValue } = useForm({
+  const { control, handleSubmit, setValue, reset } = useForm({
     resolver: yupResolver(memberSchema),
+    defaultValues: {
+      name: '',
+      email: '',
+      phone: '',
+      id_number: '',
+      address: '',
+      date_of_birth: '' as unknown as Date,
+      membership_start_date: '' as unknown as Date,
+      gender: '' as unknown as EGender,
+      is_newsletter_subscribe: false,
+      membership_type: '' as unknown as EMembershipType,
+      photo_url: '',
+    }, // to stop the warning of date/s
   });
 
   const handleFormSubmit = (data: IMember): void => {
     setLoading(true);
+
     setTimeout(() => {
-      dispatch(addMember(data));
-      enqueueSnackbar('Member Added Successfully!', { variant: 'success' });
+      if (editMode) {
+        dispatch(editMember(data));
+        enqueueSnackbar('Member Updated Successfully!', { variant: 'success' });
+      } else {
+        dispatch(addMember(data));
+        enqueueSnackbar('Member Added Successfully!', { variant: 'success' });
+      }
+      reset();
+      navigate('/members');
       setLoading(false);
     }, 3000);
   };
+
+  useEffect(() => {
+    if (!(editMode && params.memberId)) return;
+
+    const currentMember = members.find((member) => member.id === params.memberId);
+    if (!currentMember.id) return;
+
+    reset({
+      ...currentMember,
+      date_of_birth: new Date(currentMember.date_of_birth),
+      membership_start_date: new Date(currentMember.membership_start_date),
+    });
+  }, [params, editMode, members]);
 
   return (
     <Box
@@ -247,7 +292,7 @@ function CreateMemberPage(): React.ReactElement {
                   disabled
                   type="text"
                   label="Date of Birth"
-                  value={field.value ? new Date(field.value).toLocaleDateString('en-GB') : ''}
+                  value={field?.value ? new Date(field.value).toLocaleDateString('en-GB') : ''}
                   variant="outlined"
                   error={invalid}
                   helperText={error?.message}
@@ -266,7 +311,12 @@ function CreateMemberPage(): React.ReactElement {
             control={control}
             render={({ field, fieldState: { error, invalid } }) => (
               <FormControl required error={invalid}>
-                <DatePicker {...field} label="Membership Start Date" />
+                <DatePicker
+                  {...field}
+                  label="Membership Start Date"
+                  value={DateTime.fromJSDate(field?.value)}
+                  onChange={(value) => field.onChange(value.toJSDate().toISOString())}
+                />
                 <FormHelperText>{error?.message}</FormHelperText>
               </FormControl>
             )}
@@ -279,8 +329,8 @@ function CreateMemberPage(): React.ReactElement {
                 <Grid container spacing={2}>
                   {/* Basic Subscription Card */}
                   <Grid item xs={4}>
-                    <Card elevation={field.value === EMmemberShipType.BASIC ? 8 : 1}>
-                      <CardActionArea onClick={() => field.onChange(EMmemberShipType.BASIC)}>
+                    <Card elevation={field.value === EMembershipType.BASIC ? 8 : 1}>
+                      <CardActionArea onClick={() => field.onChange(EMembershipType.BASIC)}>
                         <CardContent
                           sx={{
                             display: 'flex',
@@ -302,8 +352,8 @@ function CreateMemberPage(): React.ReactElement {
 
                   {/* Premium Subscription Card */}
                   <Grid item xs={4}>
-                    <Card elevation={field.value === EMmemberShipType.PREMIUM ? 8 : 1}>
-                      <CardActionArea onClick={() => field.onChange(EMmemberShipType.PREMIUM)}>
+                    <Card elevation={field.value === EMembershipType.PREMIUM ? 8 : 1}>
+                      <CardActionArea onClick={() => field.onChange(EMembershipType.PREMIUM)}>
                         <CardContent
                           sx={{
                             display: 'flex',
@@ -325,8 +375,8 @@ function CreateMemberPage(): React.ReactElement {
 
                   {/* VIP Subscription Card */}
                   <Grid item xs={4}>
-                    <Card elevation={field.value === EMmemberShipType.VIP ? 8 : 1}>
-                      <CardActionArea onClick={() => field.onChange(EMmemberShipType.VIP)}>
+                    <Card elevation={field.value === EMembershipType.VIP ? 8 : 1}>
+                      <CardActionArea onClick={() => field.onChange(EMembershipType.VIP)}>
                         <CardContent
                           sx={{
                             display: 'flex',
@@ -351,9 +401,24 @@ function CreateMemberPage(): React.ReactElement {
             )}
           />
         </Box>
+        <Controller
+          name="is_newsletter_subscribe"
+          control={control}
+          render={({ field, fieldState: { error, invalid } }) => (
+            <FormControl required error={invalid}>
+              <FormControlLabel
+                control={<Checkbox {...field} checked={field.value} />}
+                label="Subscribe to newsletter"
+              />
+
+              <FormHelperText>{error?.message}</FormHelperText>
+            </FormControl>
+          )}
+        />
+
         <Box sx={{ my: 2 }}>
           <LoadingButton loading={loading} type="submit" variant="contained" color="primary">
-            Add new member
+            Submit{' '}
           </LoadingButton>
         </Box>
       </Paper>

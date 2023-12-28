@@ -4,7 +4,7 @@ export enum EGender {
   OTHER = 'other',
 }
 
-export enum EMmemberShipType {
+export enum EMembershipType {
   BASIC = 'basic',
   PREMIUM = 'premium',
   VIP = 'vip',
@@ -22,6 +22,6 @@ export interface IMember {
   address: string;
   date_of_birth: Date;
   // ---------------------------- //
-  membership_type: EMmemberShipType;
+  membership_type: EMembershipType;
   membership_start_date: Date;
 }

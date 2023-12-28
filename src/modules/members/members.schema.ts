@@ -1,5 +1,5 @@
 import * as Yup from 'yup';
-import { EGender, EMmemberShipType } from './members.modal';
+import { EGender, EMembershipType } from './members.modal';
 
 const memberSchema = Yup.object().shape({
   name: Yup.string()
@@ -36,8 +36,8 @@ const memberSchema = Yup.object().shape({
 
   date_of_birth: Yup.date().required('Date of Birth is required'),
 
-  membership_type: Yup.mixed<EMmemberShipType>()
-    .oneOf(Object.values(EMmemberShipType), 'Invalid membership type')
+  membership_type: Yup.mixed<EMembershipType>()
+    .oneOf(Object.values(EMembershipType), 'Invalid membership type')
     .required('Membership Type is required'),
 
   membership_start_date: Yup.date()
