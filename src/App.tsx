@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   Button,
   Paper,
@@ -46,7 +47,7 @@ function App() {
     fetchMembers();
   }, []);
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (_id: number) => {
     // Implement delete logic
   };
 
