@@ -54,6 +54,7 @@ function App() {
 
   const handleDelete = async (_id: number) => {
     // Implement delete logic
+    console.log(filters);
   };
 
   // Function to update filters state
