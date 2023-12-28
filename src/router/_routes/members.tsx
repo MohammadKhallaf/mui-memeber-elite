@@ -1,16 +1,17 @@
-import { RouteObject } from "react-router-dom";
-import CreateMemberPage from "../../modules/members/create";
+import { RouteObject } from 'react-router-dom';
+import ListMembersPage from 'src/modules/members/list';
+import CreateMemberPage from '../../modules/members/create';
 
 export const membersRoutes: RouteObject[] = [
   {
-    path: "members",
+    path: 'members',
     children: [
       {
         index: true,
-        element: <CreateMemberPage />,
+        element: <ListMembersPage />,
       },
       {
-        path: "create",
+        path: 'create',
         element: <CreateMemberPage />,
       },
     ],
