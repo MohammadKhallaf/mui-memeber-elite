@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {
-  Button,
+  CssBaseline,
   Paper,
   Table,
   TableBody,
@@ -8,10 +8,17 @@ import {
   TableHead,
   TableRow,
   TextField,
-} from "@mui/material";
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import "./App.css";
+} from '@mui/material';
+import AppBar from '@mui/material/AppBar';
+import Box from '@mui/material/Box';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
+import MenuIcon from '@mui/icons-material/Menu';
+import { useEffect, useState } from 'react';
+import { Link, Outlet } from 'react-router-dom';
+import './App.css';
 
 type Member = {
   id: number;
@@ -27,12 +34,12 @@ function App() {
   // Define state for each filter
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [filters, setFilters] = useState({
-    name: "",
-    email: "",
-    membershipType: "",
-    idNumber: "",
-    membershipStartDate: "",
-    phoneNumber: "",
+    name: '',
+    email: '',
+    membershipType: '',
+    idNumber: '',
+    membershipStartDate: '',
+    phoneNumber: '',
   });
 
   useEffect(() => {
@@ -66,6 +73,24 @@ function App() {
     // Filter logic here
     setFilteredMembers(filtered);
   };
+
+  return (
+    <Box sx={{ flexGrow: 1 }}>
+      <CssBaseline />
+      <AppBar position="static">
+        <Toolbar>
+          {/* <IconButton size="large" edge="start" color="inherit" aria-label="menu" sx={{ mr: 2 }}>
+            <MenuIcon />
+          </IconButton> */}
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            Member Elite
+          </Typography>
+          {/* <Button color="inherit">Login</Button> */}
+        </Toolbar>
+      </AppBar>
+      <Outlet />
+    </Box>
+  );
 
   return (
     <Paper>
